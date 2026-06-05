@@ -12,13 +12,13 @@
         padding: 20px;
         text-align: center;
     }
-    #setup {
-        margin-bottom: 20px;
+    #setupScreen, #gameScreen {
+        display: none;
     }
     input {
         padding: 6px;
         margin: 5px;
-        width: 120px;
+        width: 150px;
         text-align: center;
     }
     button {
@@ -48,12 +48,12 @@
         align-items: center;
         font-size: 32px;
         margin-bottom: 10px;
-        cursor: pointer;
         user-select: none;
     }
     .lifeLeft, .lifeRight {
         width: 40%;
         padding: 10px;
+        cursor: pointer;
     }
     .lifeLeft:hover { background: #552222; }
     .lifeRight:hover { background: #225522; }
@@ -73,14 +73,113 @@
 
 <h1>MTG Life + Commander Damage Tracker</h1>
 
-<div id="setup">
+<!-- SETUP SCREEN -->
+<div id="setupScreen">
     <input id="playerCount" type="number" placeholder="Players" min="1" max="10">
+    <br>
     <input id="startingLife" type="number" placeholder="Starting Life" value="40">
+    <br>
     <button onclick="startGame()">Start</button>
 </div>
 
-<div id="game"></div>
+<!-- GAME SCREEN -->
+<div id="gameScreen">
+    <div id="players"></div>
+    <button onclick="resetToSetup()">Back to Setup</button>
+</div>
 
 <script>
+document.getElementById("setupScreen").style.display = "block";
+
 function startGame() {
-    const count = parseInt(document
+    const count = parseInt(document.getElementById("playerCount").value);
+    const startLife = parseInt(document.getElementById("startingLife").value);
+
+    if (!count || count < 1) {
+        alert("Enter number of players");
+        return;
+    }
+
+    document.getElementById("setupScreen").style.display = "none";
+    document.getElementById("gameScreen").style.display = "block";
+
+    const playersDiv = document.getElementById("players");
+    playersDiv.innerHTML = "";
+
+    for (let i = 1; i <= count; i++) {
+        const box = document.createElement("div");
+        box.className = "playerBox";
+
+        let life = startLife;
+
+        const title = document.createElement("h2");
+        title.textContent = "Player " + i;
+
+        const lifeRow = document.createElement("div");
+        lifeRow.className = "lifeRow";
+
+        const left = document.createElement("div");
+        left.className = "lifeLeft";
+        left.textContent = "-";
+        left.onclick = () => {
+            life--;
+            lifeDisplay.textContent = life;
+        };
+
+        const lifeDisplay = document.createElement("div");
+        lifeDisplay.textContent = life;
+
+        const right = document.createElement("div");
+        right.className = "lifeRight";
+        right.textContent = "+";
+        right.onclick = () => {
+            life++;
+            lifeDisplay.textContent = life;
+        };
+
+        lifeRow.appendChild(left);
+        lifeRow.appendChild(lifeDisplay);
+        lifeRow.appendChild(right);
+
+        const cmdBox = document.createElement("div");
+        cmdBox.className = "commanderBox";
+
+        const cmdTitle = document.createElement("div");
+        cmdTitle.textContent = "Commander Damage";
+        cmdBox.appendChild(cmdTitle);
+
+        for (let j = 1; j <= count; j++) {
+            if (j === i) continue;
+
+            const row = document.createElement("div");
+            row.style.margin = "5px";
+
+            const label = document.createElement("span");
+            label.textContent = "From Player " + j + ": ";
+
+            const input = document.createElement("input");
+            input.type = "number";
+            input.min = 0;
+            input.value = 0;
+
+            row.appendChild(label);
+            row.appendChild(input);
+            cmdBox.appendChild(row);
+        }
+
+        box.appendChild(title);
+        box.appendChild(lifeRow);
+        box.appendChild(cmdBox);
+
+        playersDiv.appendChild(box);
+    }
+}
+
+function resetToSetup() {
+    document.getElementById("gameScreen").style.display = "none";
+    document.getElementById("setupScreen").style.display = "block";
+}
+</script>
+
+</body>
+</html>
